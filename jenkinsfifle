@@ -1,0 +1,72 @@
+pipeline {
+    agent none
+
+    environment {
+        IMAGE_NAME = "webapp"
+        IMAGE_TAG = "v2.3"
+        DOCKERHUB = credentials("dockerhub")
+        DOCKER_INTERNAL_IP_ADDRESS = "172.17.0.1"
+        PORT = "80"
+    }
+
+    stages {
+        stage("build") {
+            agent any
+
+            steps {
+                echo "********** Build **********"
+                sh "docker build -t $DOCKERHUB_USR/$IMAGE_NAME:$IMAGE_TAG ."
+            }
+
+        }
+        stage("test") {
+            agent any
+
+            steps {
+                echo "********** Test **********"
+                sh """ 
+                    docker rm -f $IMAGE_NAME || echo "Container $IMAGE_NAME does not exist"
+                    docker run -d --name $IMAGE_NAME -p $PORT:5000 -e PORT=5000 $DOCKERHUB_USR/$IMAGE_NAME:$IMAGE_TAG
+                    sleep 5s
+
+                    curl http://$DOCKER_INTERNAL_IP_ADDRESS:$PORT | grep -q "Hello world!"
+
+                    echo "Cleaning the resources"
+                    docker stop $IMAGE_NAME
+                    docker rm $IMAGE_NAME
+                """
+            }
+        }
+        stage("release") {
+            agent any
+
+            steps {
+                echo "********** Release **********"
+                sh """ 
+                    docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+                    docker push $DOCKERHUB_USR/$IMAGE_NAME:$IMAGE_TAG
+                """
+            }
+        }
+        stage("deploy staging") {
+            agent any
+
+            environment {
+                VM_IP_ADDRESS = "100.100.100.1"
+            }
+
+            steps {
+                sshagent (credentials: ['aws_secret_key']) {
+
+                }
+            }
+        }
+        stage("deploy prod") {
+            agent any
+        }
+    }
+
+    post {
+
+    }
+}
