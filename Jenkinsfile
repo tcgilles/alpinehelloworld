@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'webapp'
-        IMAGE_TAG = 'v2.5'
+        IMAGE_TAG = 'v2.6'
         DOCKERHUB = credentials('dockerhub')
         DOCKER_INTERNAL_IP_ADDRESS = '172.17.0.1'
         PORT = '80'
@@ -59,7 +59,7 @@ pipeline {
             agent any
 
             when { 
-                branch 'master'
+                expression {GIT_BRANCH == 'origin/master'}
             }
 
             environment {
@@ -86,7 +86,7 @@ pipeline {
             agent any
 
             when { 
-                branch 'master'
+                expression {GIT_BRANCH == 'origin/master'}
             }
 
             environment {
