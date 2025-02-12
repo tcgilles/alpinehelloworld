@@ -59,7 +59,7 @@ pipeline {
             agent any
 
             when { 
-                expression { env.BRANCH_NAME == 'origin/master' }
+                branch 'master'
             }
 
             environment {
@@ -86,7 +86,7 @@ pipeline {
             agent any
 
             when { 
-                expression { env.BRANCH_NAME == 'origin/master' }
+                branch 'master'
             }
 
             environment {
