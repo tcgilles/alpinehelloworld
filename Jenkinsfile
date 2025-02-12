@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'webapp'
-        IMAGE_TAG = 'v2.6'
+        IMAGE_TAG = 'v2.7'
         DOCKERHUB = credentials('dockerhub')
         DOCKER_INTERNAL_IP_ADDRESS = '172.17.0.1'
         PORT = '80'
